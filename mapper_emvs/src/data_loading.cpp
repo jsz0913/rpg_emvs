@@ -37,7 +37,7 @@ void parse_rosbag(const std::string &rosbag,
   bool continue_looping_through_bag = true;
   bool got_initial_stamp = false;
   ros::Time initial_timestamp;
-
+ // BOOST_FOREACH 遍历     view个数与话题个数相同
   BOOST_FOREACH(rosbag::MessageInstance const m, view)
   {
     if(!continue_looping_through_bag)
@@ -47,7 +47,8 @@ void parse_rosbag(const std::string &rosbag,
 
     const std::string& topic_name = m.getTopic();
     VLOG(2) << topic_name;
-
+    //  m.instantiate<dvs_msgs::EventArray>()
+    //  第一次出现的事件/位姿作为初始时间，取出一段时间内
     // Events
     if (topic_name == topics[0])
     {
@@ -80,10 +81,11 @@ void parse_rosbag(const std::string &rosbag,
           }
 
           dvs_msgs::Event ev_modified(msg->events[i]);
+           // 时间更改从initial_timestamp
           ev_modified.ts = ros::Time(ev_modified.ts.toSec() - initial_timestamp.toSec());
           events_.push_back(ev_modified);
         }
-      }
+      }//if (msg != NULL)
     }
 
     // Camera Info
@@ -122,6 +124,7 @@ void parse_rosbag(const std::string &rosbag,
                                     pose_msg.pose.orientation.y,
                                     pose_msg.pose.orientation.z);
       geometry_utils::Transformation T(position, quat);
+      // geometry_utils::Transformation  geometry_msgs::PoseStamped 相互转换问题
       poses_.insert(std::pair<ros::Time, geometry_utils::Transformation>(ros::Time(pose_msg.header.stamp.toSec() - initial_timestamp.toSec()), T));
     }
   }
