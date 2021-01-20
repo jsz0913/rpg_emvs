@@ -18,7 +18,7 @@ int compute_median_histogram(const int h[], int num_elements)
   return n;
 }
 
-
+// row = y col =x
 inline int get_value(const cv::Mat& img, const cv::Mat& mask, int row, int col)
 {
   if(row >= 0 && col >= 0 && row < img.rows && col < img.cols && mask.at<uint8_t>(row,col) > 0)
@@ -27,6 +27,8 @@ inline int get_value(const cv::Mat& img, const cv::Mat& mask, int row, int col)
     return -1;
 }
 
+// 每个元素都对周围元素排序求中位值
+// 而现在不排序， N个元素放入直方图，求和直到和大于 N/2
 
 // 2D median filter. Complexity: O(p) where p is the patch size
 // "T. Huang, G. Yang, and G. Tang, "A Fast Two-Dimensional Median Filtering Algorithm"
@@ -53,15 +55,19 @@ void huangMedianFilter(const cv::Mat& img, cv::Mat& out_img, const cv::Mat& mask
   int row1, row2, col1, col2;
   int row, col, r, c;
 
+  // h = 0
   memset(h, 0, sizeof(h));
 
   int num_elements = 0;
 
+  // p = patch_size / 2
   // Histogram For (0,0)-element
+  // H存储patchsize中每个灰度值出现的次数
   for(row = -p; row <= p; row++)
   {
     for(col = -p; col <= p; col++)
     {
+      // 得到img的值
       int val = get_value(img, mask, row, col);
       if(val >= 0)
       {
@@ -71,13 +77,16 @@ void huangMedianFilter(const cv::Mat& img, cv::Mat& out_img, const cv::Mat& mask
     }
   }
 
-  // Median
+  // Median h存储灰度值出现个数  num_elements = h的总数
+  // 从低到高累加，获得灰度值个数大于一半时的灰度值
+  // eq： h[0] = 1 h[1] = 4 h[2] = 5 h[3] = 2 h[4] = 4  num_elements = 16
+  // 加到h[2]时，大于8，得到med=2
   med = compute_median_histogram(h, num_elements);
 
   // Now, Median Is Defined For (0,0)-element
-  // Begin Scanning: direction - FORWARD
+  // 0，0处的median得到了
   out_img.at<uchar>(0,0)=med;
-
+  // Begin Scanning: direction - FORWARD
   // main loop
   for(col=1, row=0; row<img.rows; row++)
   {
