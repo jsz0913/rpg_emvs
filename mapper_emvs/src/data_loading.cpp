@@ -26,7 +26,11 @@ void parse_rosbag(const std::string &rosbag,
 
   poses_.clear();
   events_.clear();
-
+  // string rosbag 
+  // 读取rosbag中的消息
+  // DEFINE_string(event_topic, "/dvs/events", "Name of the event topic (default: /dvs/events)");
+  // DEFINE_string(pose_topic, "/optitrack/davis", "Name of the pose topic (default: /optitrack/davis)");
+  // DEFINE_string(camera_info_topic, "/dvs/camera_info", "Name of the camera info topic (default: /dvs/camera_info)");
   rosbag::Bag  bag(rosbag, rosbag::bagmode::Read);
   rosbag::View view(bag, rosbag::TopicQuery(topics));
 
