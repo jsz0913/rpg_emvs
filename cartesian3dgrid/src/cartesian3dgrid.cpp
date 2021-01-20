@@ -52,7 +52,7 @@ void Grid3D::resetGrid()
   std::fill(data_array_.begin(), data_array_.end(), 0.f);
 }
 
-
+// 每一个x，y上，遍历得到最大值时的z
 void Grid3D::collapseMaxZSlice(cv::Mat* max_val, cv::Mat* max_pos_idx) const
 {
   // Z-slice
