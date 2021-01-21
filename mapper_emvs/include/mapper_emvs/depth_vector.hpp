@@ -89,7 +89,7 @@ public:
   {
     LOG(INFO) << "Using linear spacing in depth";
     depth_to_cell_idx_multiplier_ = (float)((num_depth_cells_) / (max_depth_-min_depth_));
-
+    // min_depth_ + i*(max_depth_- min_depth_)/num_depth_cells_
     vec_.resize(num_depth_cells_);
     for(size_t i=0; i<num_depth_cells_; ++i)
     {
@@ -101,7 +101,8 @@ public:
   {
     return vec_[i];
   }
-
+  // (depth-min_depth_) / (max_depth_-min_depth_) *  (num_depth_cells_)  + 0.5
+  // depth反求i 分辨率是   (max_depth_-min_depth_) / (num_depth_cells_) 
   size_t depthToCellIndex(float depth)
   {
     return (size_t) ((depth-min_depth_) * depth_to_cell_idx_multiplier_ + 0.5);
