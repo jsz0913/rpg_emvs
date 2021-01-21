@@ -11,7 +11,7 @@ namespace EMVS
 
 // Uses the "Curiously Recursive Template Pattern" to allow static polymorphism
 // for performance (since these functions will be called very often)
-
+// https://zhuanlan.zhihu.com/p/54945314
 template<class DerivedDepthVector>
 class DepthVector {
 public:
