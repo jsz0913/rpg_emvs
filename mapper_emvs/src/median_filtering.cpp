@@ -88,9 +88,13 @@ void huangMedianFilter(const cv::Mat& img, cv::Mat& out_img, const cv::Mat& mask
   out_img.at<uchar>(0,0)=med;
   // Begin Scanning: direction - FORWARD
   // main loop
+  // （1，0） 
+  //                                row-p
+  // col-direction*(p+1)                      col+direction*p
+  //                                row+p
   for(col=1, row=0; row<img.rows; row++)
   {
-    // Prepare to Horizontal Scanning
+  // Prepare to Horizontal Scanning
     row1=row-p;
     row2=row+p;
 
@@ -104,13 +108,14 @@ void huangMedianFilter(const cv::Mat& img, cv::Mat& out_img, const cv::Mat& mask
       // Now Change Old Histogram
       // New Histogram
       // delete previous
-
+      // 左边和右边 消失 和  更新
       for(r=row1; r<=row2; r++)
       {
         int value_out = get_value(img, mask, r, prev);
         int value_in = get_value(img, mask, r, next);
         if(value_in >= 0 && value_out == value_in)
           continue;
+        // 
         if(value_out >= 0)
         {
           h[value_out]--;
