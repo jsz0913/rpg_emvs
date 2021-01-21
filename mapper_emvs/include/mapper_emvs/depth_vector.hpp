@@ -115,8 +115,7 @@ public:
 };
 
 
-
-
+// 逆深度的设置
 class InverseDepthVector : public DepthVector<InverseDepthVector>
 {
 public:
