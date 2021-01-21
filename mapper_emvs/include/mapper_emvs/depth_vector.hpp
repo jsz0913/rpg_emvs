@@ -149,7 +149,8 @@ public:
 
   size_t depthToCellIndex(float depth)
   {
-    return (size_t) ((1.f/depth-inv_max_depth_) * depth_to_cell_idx_multiplier_ + 0.5);
+    // 逆深度  1.f/depth
+    return (size_t) ((1.f/depth -inv_max_depth_) * depth_to_cell_idx_multiplier_ + 0.5);
   }
 
   float depthToCell(float depth)
