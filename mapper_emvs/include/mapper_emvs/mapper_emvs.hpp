@@ -22,6 +22,7 @@ using TypeDepthVector = InverseDepthVector;
 using TypeDepthVector = LinearDepthVector;
 #endif
 
+// ShapeDSI 有关DSI的参数
 struct ShapeDSI {
 
 public:
