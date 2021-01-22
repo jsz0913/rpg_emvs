@@ -66,6 +66,7 @@ int main(int argc, char** argv)
   LinearTrajectory trajectory = LinearTrajectory(poses);
 
   // Set the position of the reference view in the middle of the trajectory
+  // reference view 是 virtual view
   geometry_utils::Transformation T0_, T1_;
   ros::Time t0_, t1_;
   trajectory.getFirstControlPose(&T0_, &t0_);
@@ -80,7 +81,7 @@ int main(int argc, char** argv)
                            FLAGS_min_depth, FLAGS_max_depth,
                            FLAGS_fov_deg);
 
-  // Initialize mapper，初始化了dvs camera
+  // Initialize mapper，初始化dvs camera
   EMVS::MapperEMVS mapper(cam, dsi_shape);
 
   // 1. Back-project events into the DSI
