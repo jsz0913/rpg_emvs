@@ -46,9 +46,11 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
   camera_centers.clear();
 
   // Loop through the events, grouping them in packets of frame_size_ events
+  
   size_t current_event_ = 0;
   while(current_event_ + packet_size_ < events.size())
   {
+    // packet_size_（1024）个事件被设置为相同时间戳   即一个event camera 位置
     // Events in a packet are assigned the same timestamp (mid-point), for efficiency
     ros::Time frame_ts = events[current_event_ + packet_size_ / 2].ts;
 
@@ -59,20 +61,25 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
       current_event_++;
       continue;
     }
-
+    // 
     T_rv_ev = T_rv_w * T_w_ev;
-
+    
+    
+    // R t 对应论文
     const Transformation T_ev_rv = T_rv_ev.inverse();
     const Eigen::Matrix3f R = T_ev_rv.getRotationMatrix().cast<float>();
     const Eigen::Vector3f t = T_ev_rv.getPosition().cast<float>();
 
     // Optical center of the event camera in the coordinate frame of the reference view
+    // C   对应论文
     camera_centers.push_back(-R.transpose() * t);
 
     // Project the points on plane at distance z0
+    // raw_depths_vec_： z0 z1 z2 z3 ...
     const float z0 = raw_depths_vec_[0];
 
     // Planar homography  (H_z0)^-1 that maps a point in the reference view to the event camera through plane Z = Z0 (Eq. (8) in the IJCV paper)
+    // 比论文多乘z0 这样映射到 reference view 的 z0 平面 而不是 1 平面
     Eigen::Matrix3f H_z0_inv = R;
     H_z0_inv *= z0;
     H_z0_inv.col(2) += t;
