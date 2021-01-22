@@ -80,11 +80,16 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
 
     // Planar homography  (H_z0)^-1 that maps a point in the reference view to the event camera through plane Z = Z0 (Eq. (8) in the IJCV paper)
     // 比论文多乘z0 这样映射到 reference view 的 z0 平面 而不是 1 平面
+    // 注意：Hz0 实际上是相机坐标系下的变化
+    //       Hz0 inv ：reference view to the event camera
+    //       因此，K_是事件相机(virtual view)
     Eigen::Matrix3f H_z0_inv = R;
     H_z0_inv *= z0;
     H_z0_inv.col(2) += t;
 
     // Compute H_z0 in pixel coordinates using the intrinsic parameters
+    // DVS camera   ： K_
+    // virtual_cam_ ： Kinv_ （由dvs视距决定）
     Eigen::Matrix3f H_z0_inv_px = K_ * H_z0_inv * virtual_cam_.Kinv_;
     Eigen::Matrix3f H_z0_px = H_z0_inv_px.inverse();
 
