@@ -79,6 +79,7 @@ public:
     geometry_utils::Transformation T0_, T1_;
 
     // Check if it is between two known poses
+    // 比t大的最近的poses
     auto it1 = poses_.upper_bound(t);
     if(it1 ==  poses_.begin())
     {
@@ -96,6 +97,7 @@ public:
     }
     else
     {
+      // it0前一个
       auto it0 = std::prev(it1);
       t0_ = (it0)->first;
       T0_ = (it0)->second;
@@ -107,6 +109,9 @@ public:
     auto T_relative = T0_.inverse() * T1_;
     auto delta_t = (t - t0_).toSec() / (t1_ - t0_).toSec();
     T = T0_ * geometry_utils::Transformation::exp(delta_t * T_relative.log());
+    // t0    t    t1
+    // T0    T    T1
+    // T0到T 按时间
     return true;
   }
 
