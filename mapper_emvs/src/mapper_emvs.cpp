@@ -6,6 +6,7 @@ namespace EMVS {
 
 using namespace geometry_utils;
 
+// 
 MapperEMVS::MapperEMVS(const image_geometry::PinholeCameraModel& cam,
                        const ShapeDSI& dsi_shape)
   : dvs_cam_(cam)
@@ -19,8 +20,8 @@ MapperEMVS::MapperEMVS(const image_geometry::PinholeCameraModel& cam,
       0.f, dvs_cam_.fy(), dvs_cam_.cy(),
       0.f, 0.f, 1.f;
 
+    
   setupDSI();
-
   precomputeRectifiedPoints();
 }
 
@@ -170,14 +171,16 @@ void MapperEMVS::setupDSI()
 {
   CHECK_GT(dsi_shape_.min_depth_, 0.0);
   CHECK_GT(dsi_shape_.max_depth_ , dsi_shape_.min_depth_);
-
+  // DepthVector(min_depth,max_depth,num_depth_cells)
   depths_vec_ = TypeDepthVector(dsi_shape_.min_depth_, dsi_shape_.max_depth_, dsi_shape_.dimZ_);
+  // 深度向量：z方向上切片，将min_depth_ max_depth_均分
   raw_depths_vec_ = depths_vec_.getDepthVector();
 
   dsi_shape_.dimX_ = (dsi_shape_.dimX_ > 0) ? dsi_shape_.dimX_ : dvs_cam_.fullResolution().width;
   dsi_shape_.dimY_ = (dsi_shape_.dimY_ > 0) ? dsi_shape_.dimY_ : dvs_cam_.fullResolution().height;
 
   float f_virtual_cam_;
+  // f_virtual_cam_ 焦距求法
   if (dsi_shape_.fov_ < 10.f)
   {
     LOG(INFO) << "Specified DSI FoV < 10 deg. Will use camera FoV instead.";
@@ -188,8 +191,10 @@ void MapperEMVS::setupDSI()
     const float dsi_fov_rad = dsi_shape_.fov_ * CV_PI / 180.0;
     f_virtual_cam_ = 0.5 * (float) dsi_shape_.dimX_ / std::tan(0.5 * dsi_fov_rad);
   }
+  
   LOG(INFO) << "Focal length of virtual camera: " << f_virtual_cam_ << " pixels";
 
+  //  PinholeCamera(int width, int height, float fx, float fy, float cx, float cy)
   virtual_cam_ = PinholeCamera(dsi_shape_.dimX_, dsi_shape_.dimY_,
                                f_virtual_cam_, f_virtual_cam_,
                                0.5 * (float)dsi_shape_.dimX_, 0.5 * (float)dsi_shape_.dimY_);
@@ -207,6 +212,7 @@ void MapperEMVS::precomputeRectifiedPoints()
     for(int x=0; x < width_; ++x)
     {
       cv::Point2d rectified_point = dvs_cam_.rectifyPoint(cv::Point2d(x,y));
+      // 以行来存
       precomputed_rectified_points_.col(y * width_ + x) = Eigen::Vector2f(rectified_point.x, rectified_point.y);
     }
   }
