@@ -80,7 +80,7 @@ int main(int argc, char** argv)
                            FLAGS_min_depth, FLAGS_max_depth,
                            FLAGS_fov_deg);
 
-  // Initialize mapper
+  // Initialize mapper，初始化了dvs camera
   EMVS::MapperEMVS mapper(cam, dsi_shape);
 
   // 1. Back-project events into the DSI
