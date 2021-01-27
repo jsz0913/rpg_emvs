@@ -123,6 +123,7 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
 }
 
 
+// 一系列事件相机及其对应的转换到 virtual view上
 void MapperEMVS::fillVoxelGrid(const std::vector<Eigen::Vector4f>& event_locations_z0,
                                const std::vector<Eigen::Vector3f>& camera_centers)
 {
@@ -130,11 +131,12 @@ void MapperEMVS::fillVoxelGrid(const std::vector<Eigen::Vector4f>& event_locatio
   // It maps events from plane Z0 to all the planes Zi of the DSI using Eq. (15)
   // and then votes for the corresponding voxel using bilinear voting.
 
-  // For efficiency reasons, we split each packet into batches of N events each
+  // For efficiency reasons, we split each packet into batches of N events each //
   // which allows to better exploit the L1 cache
   static const int N = 128;
   typedef Eigen::Array<float, N, 1> Arrayf;
-
+  
+  // // 深度向量：z方向上切片，将min_depth_ max_depth_均分
   const float z0 = raw_depths_vec_[0];
 
   // Parallelize over the planes of the DSI with OpenMP
@@ -142,13 +144,16 @@ void MapperEMVS::fillVoxelGrid(const std::vector<Eigen::Vector4f>& event_locatio
   #pragma omp parallel for if (event_locations_z0.size() >= 20000)
   for(size_t depth_plane = 0; depth_plane < raw_depths_vec_.size(); ++depth_plane)
   {
+    // 每一层深度平面，事件都要从头开始遍历
     const Eigen::Vector4f* pe = &event_locations_z0[0];
+    //  &data_array_.data()[layer * size_[0] * size_[1]]  指向第depth_plane片 x y第一个
     float *pgrid = dsi_.getPointerToSlice(depth_plane);
-
+    // 针对一个深度平面，多个位置的event camera
     for (size_t packet=0; packet < camera_centers.size(); ++packet)
     {
       // Precompute coefficients for Eq. (15)
       const Eigen::Vector3f& C = camera_centers[packet];
+      // zi
       const float zi = static_cast<float>(raw_depths_vec_[depth_plane]),
           a = z0 * (zi - C[2]),
           bx = (z0 - zi) * (C[0] * virtual_cam_.fx_ + C[2] * virtual_cam_.cx_),
@@ -156,9 +161,12 @@ void MapperEMVS::fillVoxelGrid(const std::vector<Eigen::Vector4f>& event_locatio
           d = zi * (z0 - C[2]);
 
       // Update voxel grid now, N events per iteration
+      // packet_size_ 为 一个event camera上事件个数（固定） 其中又分每次N个
       for(size_t batch=0; batch < packet_size_ / N; ++batch, pe += N)
       {
-        // Eq. (15)
+        // Eq. (15) 
+        // typedef Eigen::Array<float, N, 1> Arrayf
+        // N个X（Z0） Y（Z0）
         Arrayf X, Y;
         for (size_t i=0; i < N; ++i)
         {
@@ -173,9 +181,12 @@ void MapperEMVS::fillVoxelGrid(const std::vector<Eigen::Vector4f>& event_locatio
           // Bilinear voting
           dsi_.accumulateGridValueAt(X[i], Y[i], pgrid);
         }
+        
       }
+      
     }
-  }
+  }// 深度平面的循环
+  
 }
 
 
