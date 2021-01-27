@@ -67,22 +67,29 @@ private:
 // Bilinear voting within a Z-slice, if point (x,y) is given as float
 inline void Grid3D::accumulateGridValueAt(const float x_f, const float y_f, float* grid)
 {
+  // float x_f, float y_f   grid指向 x y
   if (x_f >= 0.f && y_f >= 0.f)
   {
     const int x = x_f, y = y_f;
+    // 取整，x+1，y+1在平面内
     if (x+1 < size_[0] &&
         y+1 < size_[1])
     {
       float* g = grid + x + y * size_[0];
+      // g ->  (x,y)
       const float fx = x_f - x,
           fy = y_f - y,
           fx1 = 1.f - fx,
           fy1 = 1.f - fy;
-
+      // g[0]          (x,y)
+      // g[1]          (x+1,y)
+      // g[size_[0]    (x,y+1)
+      // g[size_[0]+1] (x+1,y+1)
       g[0] += fx1*fy1;
       g[1] += fx*fy1;
       g[size_[0]]   += fx1*fy;
       g[size_[0]+1] += fx*fy;
     }
   }
+  
 }
