@@ -277,6 +277,8 @@ void MapperEMVS::getDepthMapFromDSI(cv::Mat& depth_map, cv::Mat &confidence_map,
   // Reference: Section 5.2.3 in the IJCV paper.
 
   // Maximum number of votes along optical ray
+  // depth_cell_indices  每个x y上最大值时的z
+  // confidence_map  每个x y上最大值，遍历z时的最大值
   cv::Mat depth_cell_indices;
   dsi_.collapseMaxZSlice(&confidence_map, &depth_cell_indices);
   
