@@ -115,7 +115,7 @@ bool MapperEMVS::evaluateDSI(const std::vector<dvs_msgs::Event>& events,
       event_locations_z0.push_back(p);
     }
   }
-
+  // std::fill(data_array_.begin(), data_array_.end(), 0.f)
   dsi_.resetGrid();
   fillVoxelGrid(event_locations_z0, camera_centers);
 
