@@ -24,6 +24,8 @@ public:
   // At integer location
   inline float getGridValueAt(const unsigned int ix, const unsigned int iy, const unsigned int iz) const
   {
+    // 宽 高 长 按x，然后z存
+    // ix + size_[0]*iy + size_[0]*size_[1]*iz
     return data_array_.at(ix + size_[0]*(iy + size_[1]*iz));
   }
 
