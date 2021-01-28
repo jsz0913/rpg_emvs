@@ -294,7 +294,7 @@ void MapperEMVS::getDepthMapFromDSI(cv::Mat& depth_map, cv::Mat &confidence_map,
                         cv::THRESH_BINARY,
                         options_depth_map.adaptive_threshold_kernel_size_,
                         -options_depth_map.adaptive_threshold_c_);
-
+  //output:mask
 
   // Clean up depth map using median filter (Section 5.2.5 in the IJCV paper)
   cv::Mat depth_cell_indices_filtered;
@@ -303,7 +303,10 @@ void MapperEMVS::getDepthMapFromDSI(cv::Mat& depth_map, cv::Mat &confidence_map,
                     mask,
                     options_depth_map.median_filter_size_);
 
-  // Remove the outer border to suppress boundary effects
+  //  confidence map 自适应阈值
+  //  depth_cell_indices 中值滤波
+  
+  // Remove the outer border to suppress boundary effects border_size一圈不要了
   const int border_size = std::max(options_depth_map.adaptive_threshold_kernel_size_ / 2, 1);
   removeMaskBoundary(mask, border_size);
 
