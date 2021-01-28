@@ -333,7 +333,9 @@ void MapperEMVS::getPointcloud(const cv::Mat& depth_map,
       if(mask.at<uint8_t>(y,x) > 0)
       {
         BearingVector b_rv = virtual_cam_.projectPixelTo3dRay(Keypoint(x,y));
+        //
         b_rv.normalize();
+        // 不直接*z
         Eigen::Vector3d xyz_rv = (b_rv / b_rv[2] * depth_map.at<float>(y,x));
 
         pcl::PointXYZI p_rv; // 3D point in reference view
